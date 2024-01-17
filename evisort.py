@@ -1,6 +1,7 @@
 import asyncio
 import time
 import threading
+from multiprocessing import Process
 
 
 def getFilenames(count):
@@ -64,6 +65,25 @@ def count_total_lines_threading(filenames):
     return sum(results.values())
 
 
+def run(x):
+    print(len(readlines_block(x)))
+
+
+def count_total_lines_multiprocessing(filenames):
+    processes = []
+
+    for f in filenames:
+        processes.append(Process(target=run, args=(f,)))
+
+    for p in processes:
+        p.start()
+
+    for p in processes:
+        p.join()
+
+    return 0
+
+
 if __name__ == "__main__":
     filenames = getFilenames(10)
 
@@ -79,5 +99,10 @@ if __name__ == "__main__":
 
     start = time.time()
     count_total_lines_threading(filenames)
+    end = time.time()
+    print(f"count_total_lines_threading: {end - start}")
+
+    start = time.time()
+    count_total_lines_multiprocessing(filenames)
     end = time.time()
     print(f"count_total_lines_threading: {end - start}")
